@@ -13,7 +13,6 @@ RUN npm install
 # Copy all source files
 COPY ./src ./src
 COPY vite.config.ts ./
-COPY public ./public
 COPY tsconfig*.json ./
 COPY eslint.config.js ./
 COPY index.html ./
