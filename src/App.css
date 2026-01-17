@@ -1,0 +1,30 @@
+#root {
+  margin: 0 auto;
+  max-width: 100vw;
+}
+
+.gradebook-main {
+  display: flex;
+  flex-direction: column;
+}
+
+.grade-line {
+  display: flex;
+  align-items: start;
+}
+
+.grade-divider {
+  margin: 0 0.5em;
+}
+
+.grade-divider, .points-possible {
+  font-weight: bold;
+}
+
+input.user-score {
+  width: 5em;
+}
+
+.autocomplete-input {
+  padding: 0.5em;
+}
