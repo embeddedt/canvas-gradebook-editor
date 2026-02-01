@@ -22,6 +22,12 @@ interface User {
     integration_id: number;
 }
 
+interface Section {
+    id: number;
+    name: string;
+    course_id: number;
+}
+
 interface Assignment {
     id: number;
     name: string;
@@ -67,7 +73,10 @@ function GradebookUI() {
 }
 
 function CourseGradebook({course}: {course: Course}) {
-    const { data: rawUsers, isLoading: usersLoading } = useSWR<User[]>(`/api/v1/courses/${course.id}/users?enrollment_type[]=student&per_page=1000`, {
+    const { data: courseSections, isLoading: sectionsLoading } = useSWR<Section[]>(`/api/v1/courses/${course.id}/sections`);
+    const selectedSection = useLocalStorageValue<string>("quercus-gradebook-selected-section-" + course.id);
+    const hasSelectedSection = (selectedSection.value?.length ?? 0) > 0;
+    const { data: rawUsers, isLoading: usersLoading } = useSWR<User[]>(hasSelectedSection ? `/api/v1/courses/${course.id}/users?enrollment_type[]=student&per_page=1000&section_ids[]=${selectedSection.value}` : null, {
         revalidateOnFocus: false
     });
     const courseUsers = useMemo(() => {
@@ -81,6 +90,12 @@ function CourseGradebook({course}: {course: Course}) {
     useEffect(() => {
         setUser("");
     }, [course.id]);
+    const sectionOptions = useMemo(() => {
+        return courseSections?.map(s => ({
+            value: String(s.id),
+            label: s.name
+        })) ?? [];
+    }, [ courseSections ]);
     const assignmentOptions = useMemo(() => {
         return courseAssignments?.map(a => ({
             value: String(a.id),
@@ -109,6 +124,10 @@ function CourseGradebook({course}: {course: Course}) {
         setUser("");
     }, [setUser]);
     return <>
+        {sectionsLoading ? <p><b>Loading sections</b></p> : <>
+            <p><b>Section:</b></p>
+            <NativeSelect value={selectedSection.value ?? ""} onChange={selectedSection.set} options={sectionOptions}/>
+        </>}
         {assignmentsLoading ? <p><b>Loading assignments</b></p> : <>
             <p><b>Assignment:</b></p>
             <NativeSelect value={selectedAssignment.value ?? ""} onChange={selectedAssignment.set} options={assignmentOptions}/>
